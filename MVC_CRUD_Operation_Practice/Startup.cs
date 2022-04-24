@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MVC_CRUD_Operation_Practice.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +22,23 @@ namespace MVC_CRUD_Operation_Practice
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
+        public static string ConnectionString { get; set; }
         public void ConfigureServices(IServiceCollection services)
         {
+           
+
+            ConnectionString = Configuration.GetSection("sqlConnection:ConnectionString").Value;
+            services.AddDbContextPool<EmployeeDBContext>(option =>
+            option.UseSqlServer(ConnectionString));
             services.AddControllersWithViews();
+
         }
+        
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            //ConnectionString = Configuration.GetValue<string>("sqlConnection:ConnectionString");
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
