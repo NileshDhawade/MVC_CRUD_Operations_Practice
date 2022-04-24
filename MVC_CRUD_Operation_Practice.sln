@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32407.343
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVC_CRUD_Operation_Practice", "MVC_CRUD_Operation_Practice\MVC_CRUD_Operation_Practice.csproj", "{89EBFB29-DDEA-4E72-9E96-551C796DD852}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{89EBFB29-DDEA-4E72-9E96-551C796DD852}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89EBFB29-DDEA-4E72-9E96-551C796DD852}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89EBFB29-DDEA-4E72-9E96-551C796DD852}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89EBFB29-DDEA-4E72-9E96-551C796DD852}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3D24735F-AD4F-433F-95E6-9BE5B74D268D}
+	EndGlobalSection
+EndGlobal
