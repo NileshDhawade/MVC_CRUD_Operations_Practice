@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MVC_CRUD_Operation_Practice.Entities;
 using MVC_CRUD_Operation_Practice.Models;
 using System;
+using System.Threading.Tasks;
 
 namespace MVC_CRUD_Operation_Practice.Controllers
 {
@@ -16,105 +18,119 @@ namespace MVC_CRUD_Operation_Practice.Controllers
             _context = context;
         }
         // GET: EmployeeController
-        //public ActionResult Index()
-        //{
-         //   var employee= context.GetAllEmployee();
-          //  return View(employee);
-        //}
-
-        // GET: EmployeeController/Details/5
-        public ActionResult EmployeeDetails()
+        public async Task<IActionResult> Index()
         {
-            //Employee emp = context.GetEmployeeByid(EmployeeId);
-            ViewBag.employeeList = context.GetAllEmployee();
-            return View();
+            var employees = await _context.Employee.ToListAsync();
+            return View(employees);
         }
 
-        // GET: EmployeeController/Create
-        public ActionResult Create()
+        public async Task<IActionResult> AddOrEdit(int? employeeId)
         {
-            return View();
+            ViewBag.PageName = employeeId == null ? "Create Employee" : "Edit Employee";
+            ViewBag.IsEdit = employeeId == null ? false : true;
+            if (employeeId == null)
+            {
+                return View();
+            }
+            else
+            {
+                var employee = await _context.Employee.FindAsync(employeeId);
+
+                if (employee == null)
+                {
+                    return NotFound();
+                }
+                return View(employee);
+            }
         }
 
-        // POST: EmployeeController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection )
+        public async Task<IActionResult> AddOrEdit(int employeeId, [Bind("EmployeeId,EmployeeName,EmployeeSalary,EmployeeAddress,EmployeeRole,EmployeeCity")] Employee employeeData)
+
         {
-            Employee emp = new Employee();
-            emp.EmployeeName = collection["EmployeeName"];
-            emp.EmployeeSalary = Convert.ToDecimal(collection["EmployeeSalary"]);
-            emp.EmployeeAddress = collection["EmployeeAddress"];
-            emp.EmployeeRole = collection["EmployeeRole"];
-            emp.EmployeeCity = collection["EmployeeCity"];
-            int res = context.Save(emp);
-            if (res == 1)
-                return RedirectToAction("EmployeeDetails");
+            bool IsEmployeeExist = false;
 
-            return View();
+            Employee employee = await _context.Employee.FindAsync(employeeId);
 
+            if (employee != null)
+            {
+                IsEmployeeExist = true;
+            }
+            else
+            {
+                employee = new Employee();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    employee.EmployeeName = employeeData.EmployeeName;
+                    employee.EmployeeSalary = employeeData.EmployeeSalary;
+                    employee.EmployeeAddress = employeeData.EmployeeAddress;
+                    employee.EmployeeRole = employeeData.EmployeeRole;
+                    employee.EmployeeCity = employeeData.EmployeeCity;
+
+                    if (IsEmployeeExist)
+                    {
+                        _context.Update(employee);
+                    }
+                    else
+                    {
+                        _context.Add(employee);
+                    }
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    throw;
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(employeeData);
         }
 
-        // GET: EmployeeController/Edit/5
-        public ActionResult Edit(int EmployeeId)
+        // Employee Details
+        public async Task<IActionResult> Details(int? employeeId)
         {
-            Employee emp = context.GetEmployeeByid(EmployeeId);
-            ViewBag.EmployeeName = emp.EmployeeName;
-            ViewBag.EmployeeSalary = emp.EmployeeSalary;
-            ViewBag.EmployeeAddress = emp.EmployeeAddress;
-            ViewBag.EmployeeRole= emp.EmployeeRole;
-            ViewBag.EmployeeCity= emp.EmployeeCity;
-            ViewBag.EmployeeId = emp.EmployeeId;
-           
-            return View();
+            if (employeeId == null)
+            {
+                return NotFound();
+            }
+            var employee = await _context.Employee.FirstOrDefaultAsync(m => m.EmployeeId == employeeId);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            return View(employee);
         }
 
-        // POST: EmployeeController/Edit/5
+        // GET: Employees/Delete/1
+        public async Task<IActionResult> Delete(int? employeeId)
+        {
+            if (employeeId == null)
+            {
+                return NotFound();
+            }
+            var employee = await _context.Employee.FirstOrDefaultAsync(m => m.EmployeeId == employeeId);
+
+            return View(employee);
+        }
+
+        // POST: Employees/Delete/1
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit( IFormCollection collection)
+        public async Task<IActionResult> Delete(int employeeId)
         {
-            Employee emp = new Employee();
-            emp.EmployeeName = collection["EmployeeName"];
-            emp.EmployeeSalary = Convert.ToDecimal(collection["EmployeeSalary"]);
-            emp.EmployeeAddress = collection["EmployeeAddress"];
-            emp.EmployeeRole = collection["EmployeeRole"];
-            emp.EmployeeCity = collection["EmployeeCity"];
-            emp.EmployeeId = Convert.ToInt32(collection["EmployeeId"]);
-            int res = context.Upate(emp);
-            if (res == 1)
-                return RedirectToAction("EmployeeDetails");
+            var employee = await _context.Employee.FindAsync(employeeId);
+            _context.Employee.Remove(employee);
+            await _context.SaveChangesAsync();
 
-            return View();
-
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: EmployeeController/Delete/5
-        public ActionResult Delete(int EmployeeId)
-        {
-            Employee emp = context.GetEmployeeByid(EmployeeId);
-            ViewBag.EmployeeName = emp.EmployeeName;
-            ViewBag.EmployeeSalary = emp.EmployeeSalary;
-            ViewBag.EmployeeAddress = emp.EmployeeAddress;
-            ViewBag.EmployeeRole = emp.EmployeeRole;
-            ViewBag.EmployeeCity = emp.EmployeeCity;
-            ViewBag.EmployeeId = emp.EmployeeId;
-            return View();
-           
-        }
 
-        // POST: EmployeeController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [ActionName ("Delete")]
-        public ActionResult DeleteConform(int EmployeeId)
-        {
-            int res = context.Delete(EmployeeId);
-            if (res == 1)
-                return RedirectToAction("EmployeeDetails");
 
-            return View();
-
-        }
     }
 }

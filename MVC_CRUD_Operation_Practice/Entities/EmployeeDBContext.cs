@@ -6,7 +6,7 @@ namespace MVC_CRUD_Operation_Practice.Entities
     {
         public EmployeeDBContext(DbContextOptions options) : base(options) { }
 
-        public DbSet<Employee> employees { get; set; }
+        public DbSet<Employee> Employee { get; set; }
 
     }
 }
